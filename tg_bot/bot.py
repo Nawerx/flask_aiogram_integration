@@ -48,23 +48,26 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 
 
-@dp.message_handler(commands=['start', 'help'], state="*")
+@dp.message_handler(commands=['start'], state="*")
 async def send_welcome(message: types.Message):
-    # await message.answer("Вітаю незнайомець. Увійди у систему")
-    # markup = InlineKeyboardMarkup()
-    # but1 = InlineKeyboardButton(text="Реєстрація",callback_data="signup")
-    # but2 = InlineKeyboardButton(text="Вхід", callback_data="login")
-    # markup.add(but1, but2)
-    # await message.answer("Обери свій варіант: ", reply_markup=markup)
     with Session(engine) as session:
-        user = session.execute(select(User)).scalar()
-    user_info = repr(user)
-    await message.answer(user_info)
+        user = session.execute(select(User).where(User.telegram_id == message.from_id)).scalar()
 
+    if user:
+        await message.answer(f"вітаю {user.username}, щоб побачити список команд натисни меню або напиши команду /help")
+    else:
+        await message.answer("Вітаю незнайомець. Увійди у систему написавши команду /login")
 
+@dp.message_handler(commands=['help'], state="*")
+async def help(message: types.Message):
+    await message.answer("Ось список доступних команд\n"
+                         "/start - перезапустити бота\n"
+                         "/login - увійти в систему\n"
+                         "/unlink - відв'язати телеграм від аккаунту\n"
+                         "/help - подивитись список команд")
 
 @dp.message_handler(commands=['login'], state="*")
-async def start_login_process(message: types.Message, state: FSMContext):
+async def start_login_process(message: types.Message):
     await message.answer("Введіть свій логін")
     await LoginStates.login.set()
 
@@ -112,7 +115,7 @@ async def check_password(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(commands=["unlink"], state="*")
-async def unlink(message: types.Message, state: FSMContext):
+async def unlink(message: types.Message):
     with Session(engine) as session:
         linked = session.execute(select(User).where(User.telegram_id == message.from_id)).scalar()
         if not linked:
@@ -124,7 +127,7 @@ async def unlink(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(commands=["notes"], state="*") # 3кол бек дата хендлера -- note_id;delete_id;edit_id
-async def show_notes(message: types.Message, state: FSMContext):
+async def show_notes(message: types.Message):
     with Session(engine) as session:
         user = session.execute(select(User).where(User.telegram_id == message.from_id)).scalar()
         notes = session.execute(select(Note).where(Note.author_id == user.id)).scalars()
