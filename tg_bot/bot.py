@@ -4,7 +4,8 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from aiogram.dispatcher.filters import BoundFilter
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from config import load_config
 from models.models import User, Note
 from sqlalchemy import select, URL, create_engine
@@ -46,6 +47,19 @@ bot = Bot(token=API_TOKEN)
 
 dp = Dispatcher(bot, storage=MemoryStorage())
 
+class IsLinkedFilter(BoundFilter):
+    key = "is_linked"
+    def __init__(self, is_linked: bool):
+        print(is_linked, type(is_linked))
+        self.is_linked = is_linked
+
+    async def check(self, message: types.Message):
+        with Session(engine) as session:
+            link = session.execute(select(User).where(User.telegram_id == message.from_id)).scalar()
+        return (link is not None) == self.is_linked
+
+
+dp.filters_factory.bind(IsLinkedFilter, event_handlers=[dp.message_handlers])
 
 
 @dp.message_handler(commands=['start'], state="*")
@@ -126,7 +140,7 @@ async def unlink(message: types.Message):
         await message.answer("Ваш телеграм було успішно відв'язано")
 
 
-@dp.message_handler(commands=["notes"], state="*") # 3кол бек дата хендлера -- note_id;delete_id;edit_id
+@dp.message_handler(commands=["notes"], state="*", is_linked=True)
 async def show_notes(message: types.Message):
     with Session(engine) as session:
         user = session.execute(select(User).where(User.telegram_id == message.from_id)).scalar()
