@@ -2,6 +2,7 @@
 
 {% block scripts %}
 {{ super() }}
+<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
 <script src="{{ url_for('static', filename='js/notes.js') }}"></script>
 {% endblock scripts %}
 
@@ -13,27 +14,25 @@
 </form>
 
 
+<div id="mylist">
+	<button class="sort" data-sort="title-content">Sort by content</button>
+	<input class="search" placeholder="Search" />
+<ul class="list">
 {% for note in notes %}
-<!-- <div class="note" data-note-id={{ note.id }}>
-	<h1>{{ note.content }}</h1>
-	<button type="button" class="del_note" data-note-id="{{ note.id }}">Delete this note</a>
-</div> -->
-<!-- <div class="note" data-note-id="{{ note.id }}">
-	<h1>{{ note.content }}</h1>
-	<a href="/delete_note?note_id={{ note.id }}" class="del_note" data-note-id="{{ note.id }}">Delete this note</a>
-</div> -->
+	<li>
 <form action="/delete_note" method="GET" class="note">
 	{% if note.mark_as_done %}
-	<h1><s>{{ note.content }}</s></h1>
+	<h1><s><span class="title-content">{{ note.content }}</span></s></h1>
 	<input type="checkbox" name="is_done" data-note-id="{{ note.id }}" checked>
 	{% else %}
-	<h1>{{ note.content }}</h1>
+	<h1><span class="title-content">{{ note.content }}</span></h1>
 	<input type="checkbox" name="is_done" data-note-id="{{ note.id }}">
 	{% endif %}
 	<input type="hidden" value="{{ note.id }}" name="note_id">
 	<button class="del_note" type="submit">Delete this note</button>
 </form>
+	</li>
 {% endfor %}
-
-
+</ul>
+</div>
 {% endblock content %}

@@ -26,4 +26,12 @@ $(document).ready(() => {
 
     })
 
-})
+});
+
+
+var options = {
+    valueNames: [ 'title-content',]
+
+};
+
+var hackerList = new List('mylist', options);
