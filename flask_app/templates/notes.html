@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/notes.js') }}"></script>
+{% endblock scripts %}
+
+{% block content %}
+
+<form action="/add_note" method="GET" class="note-form">
+	<input type="text" name="content" placeholder="Type your task here..." required>
+	<button type="submit">Add task</button>
+</form>
+
+
+{% for note in notes %}
+<!-- <div class="note" data-note-id={{ note.id }}>
+	<h1>{{ note.content }}</h1>
+	<button type="button" class="del_note" data-note-id="{{ note.id }}">Delete this note</a>
+</div> -->
+<!-- <div class="note" data-note-id="{{ note.id }}">
+	<h1>{{ note.content }}</h1>
+	<a href="/delete_note?note_id={{ note.id }}" class="del_note" data-note-id="{{ note.id }}">Delete this note</a>
+</div> -->
+<form action="/delete_note" method="GET" class="note">
+	{% if note.mark_as_done %}
+	<h1><s>{{ note.content }}</s></h1>
+	<input type="checkbox" name="is_done" data-note-id="{{ note.id }}" checked>
+	{% else %}
+	<h1>{{ note.content }}</h1>
+	<input type="checkbox" name="is_done" data-note-id="{{ note.id }}">
+	{% endif %}
+	<input type="hidden" value="{{ note.id }}" name="note_id">
+	<button class="del_note" type="submit">Delete this note</button>
+</form>
+{% endfor %}
+
+
+{% endblock content %}

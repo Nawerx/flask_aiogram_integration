@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block scripts %}
+{{ super() }}
+<!--<script src="{{ url_for('static', filename='js/login.js') }}"></script>-->
+{% endblock scripts %}
+
+{% block content %}
+	<div class="form-box">
+		<form action="/login" method="POST">
+			{{ form.hidden_tag()}}
+			<div class="username bar">
+				<img class="input-icon" src="{{ url_for('static', filename='images/user_icon.svg' )}}" alt="user">
+				{{ form.username(placeholder="Username", class_="input", id="inputUsername") }}
+			</div>
+			<div class="password bar">
+				<img class="input-icon" src="{{ url_for('static', filename='images/key_icon.svg' )}}" alt="password">
+				{{ form.password(placeholder="Password", class_="input", id="inputPw") }}
+			</div>
+			<button id="login_btn" class="input-btn" type="submit">Log In</button>
+			<div class="error-box" style="display: none"></div>
+			<p>Not a member yet? <a class="decorated_link" href="{{url_for('signup')}}">Sign Up!</a></p>
+		</form>
+
+	</div>
+
+	{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-message">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+{% endblock content %}

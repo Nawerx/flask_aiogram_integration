@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if not current_user.is_authenticated %}
+You are not authorized. Please, <a class="decorated_link" href="/login">Log In</a>.
+{% else %}
+Hello, {{ current_user.get_user().username }}
+{% endif %}
+{% endblock content %}

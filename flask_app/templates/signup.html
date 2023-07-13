@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+{{ super() }}
+<!--<script src="{{ url_for('static', filename='js/register.js') }}"></script>-->
+{% endblock scripts %}
+
+{% block content %}
+<div class="form-box">
+	<form action="" method="POST">
+		{{ form.hidden_tag() }}
+		<div class="username bar">
+			<img class="input-icon" src="{{ url_for('static', filename='images/user_icon.svg' )}}" alt="user">
+			{{ form.username(class_="input", id="inputUsername", placeholder="Username") }}
+		</div>
+		<div class="password bar">
+			<img class="input-icon" src="{{ url_for('static', filename='images/key_icon.svg' )}}" alt="password">
+			{{ form.password(class_="input", id="inputPw", placeholder="Password") }}
+		</div>
+		<div class="password_confirm bar">
+			<img class="input-icon" src="{{ url_for('static', filename='images/key_icon.svg' )}}" alt="password">
+			{{ form.password_rep(class_="input", id="confirmPw", placeholder="Confirm password") }}
+		</div>
+		<div class="error-box" style="display: none"></div>
+		<button id="signup_btn" class="input-btn" type="submit" >Sign up</button>
+	</form>
+	
+</div>
+
+{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-message">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+{% endblock content %}
