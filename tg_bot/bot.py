@@ -50,7 +50,6 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 class IsLinkedFilter(BoundFilter):
     key = "is_linked"
     def __init__(self, is_linked: bool):
-        print(is_linked, type(is_linked))
         self.is_linked = is_linked
 
     async def check(self, message: types.Message):
@@ -128,13 +127,10 @@ async def check_password(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-@dp.message_handler(commands=["unlink"], state="*")
+@dp.message_handler(commands=["unlink"], state="*", is_linked=True)
 async def unlink(message: types.Message):
     with Session(engine) as session:
         linked = session.execute(select(User).where(User.telegram_id == message.from_id)).scalar()
-        if not linked:
-            await message.answer("Ваш телеграм не прив'язаний до жодного аккаунту. Прив'яєіть телеграм за домогую команди /login")
-            return
         linked.telegram_id = None
         session.commit()
         await message.answer("Ваш телеграм було успішно відв'язано")
@@ -154,7 +150,6 @@ async def show_notes(message: types.Message):
                 )
             )
         await message.answer("ось ваші замітки:", reply_markup=notes_markup)
-
 
 
 @dp.callback_query_handler(lambda c: c.data.startswith("note_"))
@@ -197,6 +192,15 @@ async def finishing_edit_note(message: types.Message, state: FSMContext):
         session.commit()
     await message.answer(f"Назву замітки було змінено на {message.text}")
     await state.finish()
+
+
+@dp.message_handler(commands=["notes", "unlink"], state="*", is_linked=False)
+async def not_showed_notes(message: types.Message):
+    if message.text == "/notes":
+        await message.answer("Щоб подивитись нотатки треба увійти в систему за допомогую команди /login")
+    elif message.text == "/unlink":
+        await message.answer("Ваш телеграм не прив'язаний до жодного аккаунту, ви можете це зробити за допомогою команди /login")
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
