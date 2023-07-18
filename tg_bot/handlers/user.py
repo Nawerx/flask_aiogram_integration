@@ -116,10 +116,10 @@ async def delete_note(call: types.CallbackQuery):
     note_id = call.data.split("_")[1]
     with Session(engine) as session:
         note = session.execute(select(Note).where(Note.id == note_id)).scalar()
-        content = note.content
+        title = note.title
         session.delete(note)
         session.commit()
-    await call.message.answer(f"Замітку {content} було видалено")
+    await call.message.answer(f"Замітку {title} було видалено")
     await call.answer()
 
 
