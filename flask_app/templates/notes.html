@@ -8,31 +8,41 @@
 
 {% block content %}
 
-<form action="/add_note" method="GET" class="note-form">
-	<input type="text" name="content" placeholder="Type your task here..." required>
-	<button type="submit">Add task</button>
+<form action="/add_note" method="POST" class="note-form">
+    {{ form.hidden_tag() }}
+    {{ form.title(placeholder="Enter title") }}
+    {{ form.content(placeholder="Enter content") }}
+    <button type="submit">Add task</button>
 </form>
 
 
 <div id="mylist">
-	<button class="sort" data-sort="title-content">Sort by content</button>
-	<input class="search" placeholder="Search" />
+    <input class="search" placeholder="Search" />
+    <button class="sort" data-sort="note_id">Sort by id</button>
+    <button class="sort" data-sort="title">Sort by title</button>
 <ul class="list">
 {% for note in notes %}
-	<li>
-<form action="/delete_note" method="GET" class="note">
-	{% if note.mark_as_done %}
-	<h1><s><span class="title-content">{{ note.content }}</span></s></h1>
-	<input type="checkbox" name="is_done" data-note-id="{{ note.id }}" checked>
-	{% else %}
-	<h1><span class="title-content">{{ note.content }}</span></h1>
-	<input type="checkbox" name="is_done" data-note-id="{{ note.id }}">
-	{% endif %}
-	<input type="hidden" value="{{ note.id }}" name="note_id">
-	<button class="del_note" type="submit">Delete this note</button>
-</form>
-	</li>
+<li>
+    <details>
+        <summary>
+            {% if note.mark_as_done %}
+            <s><span class="title">{{ note.title }}</span></s>
+            <input type="checkbox" name="is_done" data-note-id="{{ note.id }}" checked>
+            {% else %}
+            <span class="title">{{ note.title }}</span>
+            <input type="checkbox" name="is_done" data-note-id="{{ note.id }}">
+            {% endif %}
+        </summary>
+        <span class="note_id" hidden>{{ note.id }}</span>
+        <form action="/delete_note" method="GET" class="note">
+            <p>{{ note.content }}</p>
+            <input type="hidden" value="{{ note.id }}" name="note_id">
+            <button class="del_note" type="submit">Delete this note</button>
+        </form>
+    </details>
+</li>
 {% endfor %}
 </ul>
 </div>
+
 {% endblock content %}

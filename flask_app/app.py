@@ -6,7 +6,7 @@ from config import load_config
 from models.models import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-from forms import Login_form, Register_form, Create_Post_Form
+from forms import Login_form, Register_form, Create_Note_Form
 
 cfg = load_config()
 
@@ -109,16 +109,21 @@ def signup():
 
 @app.route("/notes", methods=["GET", "POST"])
 def show_notes():
+    form = Create_Note_Form()
     notes = db.session.execute(select(Note).where(Note.author == current_user.get_user()).order_by(Note.id)).scalars()
-    return render_template("notes.html", notes=notes)
+    return render_template("notes.html", notes=notes,form=form)
 
 
-@app.route("/add_note")
+@app.route("/add_note", methods=["GET", "POST"])
 def add_note():
-    content = request.args.get("content")
-    note = Note(content=content, author_id=current_user.get_user().id)
-    db.session.add(note)
-    db.session.commit()
+    form = Create_Note_Form()
+    if form.validate_on_submit():
+        content = form.content.data
+        title = form.title.data
+        note = Note(content=content, title=title,  author_id=current_user.get_user().id)
+        db.session.add(note)
+        db.session.commit()
+
     return redirect(url_for("show_notes"))
 
 @app.route("/delete_note")
