@@ -11,6 +11,7 @@ class DBConfig:
 @dataclass
 class TGConfig:
     token: str
+    use_redis: bool
 
 @dataclass
 class FlaskConfig:
@@ -35,7 +36,8 @@ def load_config(path=".env") -> Config:
             password=env.str("POSTGRES_PASSWORD")
         ),
         tg=TGConfig(
-            token=env.str("BOT_TOKEN")
+            token=env.str("BOT_TOKEN"),
+            use_redis=env.bool("USE_REDIS")
         ),
         flask=FlaskConfig(
             secret_key=env.str("FLASK_SECRET_KEY")
